@@ -1,0 +1,29 @@
+
+# REQUIREMENTS.TXT - Python Dependencies
+
+# Core Data Science Libraries
+pandas
+numpy
+
+# Machine Learning Libraries
+scikit-learn
+xgboost
+
+# Model Persistence
+joblib
+
+# Visualization
+matplotlib
+seaborn
+
+# Flask Web Framework
+Flask
+flask-cors
+
+# Jupyter Notebook (Optional - for development)
+jupyter
+notebook
+
+# Additional Utilities
+python-dateutil
+pytz

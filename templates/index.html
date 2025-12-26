@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Payback System | Task 3</title>
+     <style>
+        :root { 
+            --primary: #6366f1; 
+            --primary-dark: #4f46e5;
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            --gold: #fbbf24;
+            --emerald: #10b981;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8), 0 0 60px rgba(99, 102, 241, 0.4); }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: var(--bg); 
+            padding: 2rem; 
+            color: #1e293b; 
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') bottom center no-repeat;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Floating Icons Background */
+        .bg-icon {
+            position: fixed;
+            font-size: 3rem;
+            opacity: 0.08;
+            animation: float 6s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .bg-icon:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+        .bg-icon:nth-child(2) { top: 60%; left: 80%; animation-delay: 1s; }
+        .bg-icon:nth-child(3) { top: 30%; right: 10%; animation-delay: 2s; }
+        .bg-icon:nth-child(4) { bottom: 20%; left: 15%; animation-delay: 3s; }
+        
+        .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+        
+        .card { 
+            background: rgba(255,255,255,0.98); 
+            padding: 2.5rem; 
+            border-radius: 24px; 
+            box-shadow: var(--card-shadow); 
+            margin-bottom: 2rem; 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+            animation: fadeInUp 0.6s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.05), transparent);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+        
+        .card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 30px 80px rgba(0,0,0,0.25); 
+        }
+        
+        h1, h2 { color: #0f172a; margin-top: 0; }
+        h1 { 
+            font-size: 3rem; 
+            font-weight: 900; 
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            -webkit-background-clip: text;
+            padding: 1rem 0;
+            letter-spacing: -1px;
+        }
+        h2 { 
+            font-size: 1.75rem; 
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        header { 
+            text-align: center; 
+            margin-bottom: 3rem; 
+            color: white; 
+            animation: fadeInUp 0.4s ease-out;
+            position: relative;
+        }
+
+        header h1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        header h1::before {
+            content: '🏦';
+            font-size: 3.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        header p { 
+            font-size: 1.2rem; 
+            opacity: 0.95; 
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        header p::before {
+            content: '🎓 ';
+            font-size: 1.3rem;
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 1.5rem; 
+            margin-bottom: 2rem; 
+        }
+        
+        .form-group { 
+            display: flex; 
+            flex-direction: column; 
+            animation: fadeInUp 0.5s ease-out backwards;
+            position: relative;
+        }
+        .form-group:nth-child(1) { animation-delay: 0.05s; }
+        .form-group:nth-child(2) { animation-delay: 0.1s; }
+        .form-group:nth-child(3) { animation-delay: 0.15s; }
+        
+        label { 
+            font-size: 0.875rem; 
+            font-weight: 700; 
+            margin-bottom: 0.5rem; 
+            color: #475569; 
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        
+        input, textarea, select { 
+            padding: 0.875rem; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        input:focus, textarea:focus, select:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .btn { 
+            padding: 1rem 2.5rem; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+        
+        .btn:active { transform: translateY(-1px); }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
+            color: white; 
+        }
+
+        .btn-primary::after {
+            content: ' 🚀';
+        }
+        
+        .btn-success { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+            color: white; 
+        }
+        
+        .btn-outline { 
+            border: 2px solid #cbd5e1; 
+            background: white; 
+            color: #475569;
+        }
+        
+        .btn-outline:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .tabs { 
+            display: flex; 
+            gap: 0.75rem; 
+            margin-bottom: 2rem; 
+            border-bottom: 3px solid #e2e8f0; 
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 1rem;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .tab { 
+            padding: 0.875rem 2rem; 
+            cursor: pointer; 
+            border-bottom: 3px solid transparent; 
+            margin-bottom: -3px; 
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tab:hover { 
+            background: #e2e8f0; 
+            transform: translateY(-2px);
+        }
+        
+        .tab.active { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            background: white;
+            box-shadow: 0 6px 16px rgba(99,102,241,0.2);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .tab:nth-child(1)::before { content: '👤 '; }
+        .tab:nth-child(2)::before { content: '📊 '; }
+        
+        .result { 
+            margin-top: 2rem; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            display: none; 
+            animation: fadeInUp 0.4s ease-out;
+            font-size: 1.1rem;
+            position: relative;
+        }
+        
+        .result.show { display: block; animation: pulse 0.6s ease-out; }
+        
+        .pos { 
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+            border: 3px solid #6ee7b7; 
+            color: #065f46; 
+            box-shadow: 0 6px 16px rgba(16,185,129,0.25);
+        }
+
+        .pos::before {
+            content: '✅';
+            font-size: 2.5rem;
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        
+        .neg { 
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
+            border: 3px solid #fca5a5; 
+            color: #991b1b; 
+            box-shadow: 0 6px 16px rgba(239,68,68,0.25);
+        }
+
+        .neg::before {
+            content: '⚠️';
+            font-size: 2.5rem;
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1.5rem; 
+            font-size: 0.95rem; 
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        th, td { 
+            text-align: left; 
+            padding: 1.25rem; 
+            border-bottom: 1px solid #e2e8f0; 
+        }
+        
+        th { 
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-size: 0.85rem;
+        }
+        
+        tbody tr { 
+            transition: all 0.2s ease;
+            background: white;
+        }
+        tbody tr:nth-child(even) { background: #f8fafc; }
+        tbody tr:hover { 
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); 
+            transform: scale(1.01); 
+        }
+        
+        .upload-area { 
+            border: 3px dashed #cbd5e1; 
+            padding: 3.5rem; 
+            text-align: center; 
+            border-radius: 20px; 
+            margin-bottom: 1.5rem; 
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            position: relative;
+        }
+        
+        .upload-area:hover { 
+            border-color: var(--primary); 
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(99,102,241,0.2);
+        }
+
+        .upload-area::before {
+            content: '📁';
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .upload-area p { 
+            font-size: 1.2rem; 
+            font-weight: 700;
+            color: #475569;
+            margin: 0;
+        }
+        
+        #fileName {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            margin-top: 1rem;
+            animation: fadeInUp 0.3s ease-out;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+
+        #fileName::before {
+            content: '✓ ';
+            font-weight: 900;
+        }
+
+        /* Baseline Section Styling */
+        .baseline-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .baseline-buttons .btn::before {
+            content: '🧪 ';
+        }
+
+        /* History Section */
+        #historyTable thead th:nth-child(1)::before { content: '🕐 '; }
+        #historyTable thead th:nth-child(2)::before { content: '📋 '; }
+        #historyTable thead th:nth-child(3)::before { content: '📈 '; }
+
+        /* Loading Animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        /* Badge Styling */
+        strong {
+            font-weight: 800;
+            font-size: 1.15em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; }
+            .baseline-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header style="text-align: center; margin-bottom: 3rem;">
+        <h1>Loan Payback Prediction</h1>
+        <p>ITLML801 Task 3: API Integration & Verification</p>
+    </header>
+
+    <section class="card">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('single')">Single Prediction</div>
+            <div class="tab" onclick="switchTab('batch')">Batch Prediction</div>
+        </div>
+
+        <div id="single-pane">
+            <form id="predictionForm">
+                <div id="dynamicFields" class="grid">
+                    <p>Loading feature structure...</p>
+                </div>
+                <button type="submit" class="btn btn-primary">Analyze Risk</button>
+            </form>
+            <div id="singleResult" class="result"></div>
+        </div>
+
+        <div id="batch-pane" style="display: none;">
+            <div class="upload-area">
+                <label for="csvFile" style="cursor: pointer; display: block;">
+                    <p style="margin: 0;">📁 <strong>Click to select CSV</strong> or drag and drop</p>
+                    <input type="file" id="csvFile" accept=".csv" style="display: none;" onchange="updateFileName()">
+                    <span id="fileName" style="display:block; margin-top: 0.5rem; color: var(--primary); font-size: 0.8rem;"></span>
+                </label>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label>Or Paste JSON Array:</label>
+                <textarea id="batchInput" rows="5" style="width: 100%; font-family: monospace; margin-top: 0.5rem;" placeholder='[{"annual_income": 50000, ...}]'></textarea>
+            </div>
+            
+            <button onclick="runBatch()" class="btn btn-primary">Process Batch (JSON or CSV)</button>
+            <div id="batchResult"></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>✅ Baseline Verification</h2>
+        <p>Test the model using the 3 baseline samples to ensure 100% consistency.</p>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="testBaseline(0)" class="btn btn-outline">Test Sample 1</button>
+            <button onclick="testBaseline(1)" class="btn btn-outline">Test Sample 2</button>
+            <button onclick="testBaseline(2)" class="btn btn-outline">Test Sample 3</button>
+        </div>
+        <div id="baselineStatus"></div>
+    </section>
+
+    <section class="card">
+        <h2>📚 Prediction Logs</h2>
+        <button onclick="loadHistory()" class="btn btn-outline">🔄 Refresh Logs from CSV</button>
+        <div style="overflow-x: auto;">
+            <table id="historyTable">
+                <thead><tr><th>Timestamp</th><th>Prediction</th><th>Confidence</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+    const API_BASE = window.location.origin.includes('file://') 
+        ? "http://127.0.0.1:5000" 
+        : window.location.origin;
+
+    let columns = [];
+
+    const categoryMapping = {
+        "gender": { 0: "Male", 1: "Female" },
+        "marital_status": { 0: "Single", 1: "Married", 2: "Divorced" },
+        "education_level": { 0: "High School", 1: "Bachelor", 2: "Master", 3: "PhD" },
+        "employment_status": { 0: "Unemployed", 1: "Employed", 2: "Self-Employed" },
+        "loan_purpose": { 1: "Debt Consolidation", 2: "Credit Card", 3: "Home Improvement", 4: "Major Purchase", 5: "Other" }
+    };
+
+   async function init() {
+    try {
+        const res = await fetch(`${API_BASE}/columns`);
+        const data = await res.json();
+        columns = data.columns;
+        const container = document.getElementById('dynamicFields');
+
+        // Mapping specific placeholders to column names
+        const placeholders = {
+            "annual_income": "e.g: 55000000",
+            "debt_to_income_ratio": "e.g: 0.15 ( 0.0 to 1.0)",
+            "credit_score": "e.g: 720  (300-800)",
+            "loan_amount": "e.g: 1000000",
+            "interest_rate": "e.g: 15.5%",
+            "grade_subgrade": "e.g: 1 to 5",
+            "id": "e.g: 1001"
+        };
+        
+        container.innerHTML = columns.map(col => {
+            const label = col.replace(/_/g, ' ').toUpperCase();
+            const lowerCol = col.toLowerCase();
+            
+            // Handle Dropdowns (Categories)
+            if (categoryMapping[lowerCol]) {
+                const options = categoryMapping[lowerCol];
+                return `
+                    <div class="form-group">
+                        <label>${label}</label>
+                        <select name="${col}" required>
+                            ${Object.entries(options).map(([val, text]) => `<option value="${val}">${text}</option>`).join('')}
+                        </select>
+                    </div>`;
+            } 
+            
+            // Handle Numeric Inputs with Specific Placeholders
+            const ph = placeholders[lowerCol] || "0.00"; // Fallback to 0.00 if not in map
+            return `
+                <div class="form-group">
+                    <label>${label}</label>
+                    <input type="number" step="any" name="${col}" required placeholder="${ph}">
+                </div>`;
+        }).join('');
+        
+    } catch (e) { 
+        console.error("Initialization failed", e); 
+        document.getElementById('dynamicFields').innerHTML = "<p style='color:red'>Error: Cannot connect to API.</p>";
+    }
+}
+    document.getElementById('predictionForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const payload = Object.fromEntries(formData.entries());
+        Object.keys(payload).forEach(key => payload[key] = parseFloat(payload[key]));
+
+        try {
+            const res = await fetch(`${API_BASE}/predict`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            const display = document.getElementById('singleResult');
+            display.style.display = "block";
+            const isPaid = result.prediction === "Paid Back";
+            display.className = `result show ${isPaid ? 'pos' : 'neg'}`;
+            display.innerHTML = `
+                <strong>Prediction: ${result.prediction || 'Unknown'}</strong><br>
+                Confidence: ${result.confidence ? (result.confidence * 100).toFixed(2) : '0.00'}%<br>
+                <small>Timestamp: ${result.timestamp || 'N/A'}</small>
+            `;
+            loadHistory();
+        } catch (error) { alert("Error: Check Flask console."); }
+    };
+
+    // --- NEW CSV HELPERS ---
+    function updateFileName() {
+        const file = document.getElementById('csvFile').files[0];
+        document.getElementById('fileName').innerText = file ? `Selected: ${file.name}` : "";
+    }
+
+    async function runBatch() {
+        const fileInput = document.getElementById('csvFile');
+        const jsonInput = document.getElementById('batchInput').value;
+
+        // If a file is selected, prioritize CSV upload
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const text = e.target.result;
+                const jsonArray = csvToJson(text);
+                sendBatchRequest(jsonArray);
+            };
+            reader.readAsText(file);
+        } else if (jsonInput.trim() !== "") {
+            try {
+                const jsonArray = JSON.parse(jsonInput);
+                sendBatchRequest(jsonArray);
+            } catch (e) { alert("Invalid JSON format"); }
+        } else {
+            alert("Please select a CSV file or paste a JSON array.");
+        }
+    }
+
+    function csvToJson(csvText) {
+        const lines = csvText.trim().split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        return lines.slice(1).map(line => {
+            const values = line.split(',');
+            const obj = {};
+            headers.forEach((header, i) => {
+                obj[header] = parseFloat(values[i]);
+            });
+            return obj;
+        });
+    }
+
+    async function sendBatchRequest(payload) {
+        try {
+            const res = await fetch(`${API_BASE}/predict`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            let html = `<table><thead><tr><th>ID</th><th>Result</th><th>Confidence</th></tr></thead><tbody>`;
+            data.predictions.forEach(p => {
+                html += `<tr><td>${p.sample_id}</td><td>${p.prediction}</td><td>${(p.confidence*100).toFixed(2)}%</td></tr>`;
+            });
+            html += `</tbody></table>`;
+            document.getElementById('batchResult').innerHTML = html;
+        } catch (e) { alert("Batch processing failed."); }
+    }
+
+    // --- BASELINE & HISTORY (Unchanged) ---
+    const baselines = [
+        {"id":523771,"annual_income":28114.66,"debt_to_income_ratio":0.08,"credit_score":690,"loan_amount":7133.85,"interest_rate":11.8,"gender":0,"marital_status":1,"education_level":1,"employment_status":0,"loan_purpose":1,"grade_subgrade":10},
+        {"id":524810,"annual_income":122933.72,"debt_to_income_ratio":0.046,"credit_score":659,"loan_amount":7268.12,"interest_rate":7.46,"gender":1,"marital_status":2,"education_level":1,"employment_status":0,"loan_purpose":4,"grade_subgrade":19},
+        {"id":100141,"annual_income":26379.82,"debt_to_income_ratio":0.14,"credit_score":710,"loan_amount":9386.27,"interest_rate":12.73,"gender":1,"marital_status":1,"education_level":0,"employment_status":0,"loan_purpose":2,"grade_subgrade":11}
+    ];
+
+    async function testBaseline(index) {
+        try {
+            const res = await fetch(`${API_BASE}/predict`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(baselines[index])
+            });
+            const result = await res.json();
+            document.getElementById('baselineStatus').innerHTML = `
+                <div class="result show pos" style="margin-top:10px">
+                    ✅ Baseline ${index+1}: <strong>${result.prediction}</strong> (${(result.confidence*100).toFixed(2)}%)
+                </div>`;
+        } catch (e) { alert("Baseline API call failed."); }
+    }
+
+    async function loadHistory() {
+        try {
+            const res = await fetch(`${API_BASE}/history`);
+            const data = await res.json();
+            const tbody = document.querySelector('#historyTable tbody');
+            tbody.innerHTML = data.reverse().map(row => `
+                <tr>
+                    <td>${row.timestamp || 'N/A'}</td>
+                    <td><b>${row.prediction}</b></td>
+                    <td>${row.confidence ? (row.confidence * 100).toFixed(2) + '%' : 'N/A'}</td>
+                </tr>
+            `).join('');
+        } catch (e) { console.error("History fetch failed"); }
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('single-pane').style.display = tab === 'single' ? 'block' : 'none';
+        document.getElementById('batch-pane').style.display = tab === 'batch' ? 'block' : 'none';
+    }
+
+    init();
+    loadHistory();
+</script>
+</body>
+</html>
